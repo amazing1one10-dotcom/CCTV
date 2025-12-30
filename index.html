@@ -14,8 +14,8 @@
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Model Viewer for 3D -->
-    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <!-- 360 Viewer CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
     
     <style>
         /* Core Variables */
@@ -264,7 +264,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.9);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -272,7 +272,7 @@
             opacity: 0;
             visibility: hidden;
             transition: all 0.3s var(--transition);
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
         }
         
         .modal-overlay.active {
@@ -284,9 +284,9 @@
             background: var(--charcoal);
             border: 1px solid var(--border);
             border-radius: var(--radius-xl);
-            width: 90%;
-            max-width: 900px;
-            max-height: 90vh;
+            width: 95%;
+            max-width: 1200px;
+            max-height: 95vh;
             overflow-y: auto;
             transform: translateY(20px);
             transition: transform 0.3s var(--transition);
@@ -330,55 +330,52 @@
             padding: 2rem;
         }
         
-        /* Product Detail Modal */
-        .product-detail {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 3rem;
-        }
-        
-        .product-viewer {
+        /* 360 Product Viewer */
+        .product-360-viewer {
+            position: relative;
+            width: 100%;
+            height: 500px;
             background: var(--slate);
             border-radius: var(--radius-lg);
             overflow: hidden;
-            height: 400px;
+            margin-bottom: 2rem;
+        }
+        
+        .product-360-container {
+            width: 100%;
+            height: 100%;
             position: relative;
         }
         
-        .product-viewer-3d {
+        .product-360-image {
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #1a1f2e 0%, #2d3748 100%);
+            object-fit: contain;
+            display: block;
+            transition: transform 0.3s ease;
         }
         
-        .product-viewer-3d model-viewer {
-            width: 100%;
-            height: 100%;
-            --progress-bar-color: var(--sand);
-        }
-        
-        .product-real-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .view-controls {
+        .viewer-controls {
             position: absolute;
-            bottom: 1rem;
-            right: 1rem;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
-            gap: 0.5rem;
+            gap: 10px;
+            background: rgba(15, 18, 24, 0.8);
+            padding: 10px 20px;
+            border-radius: 30px;
+            border: 1px solid var(--border);
             z-index: 10;
         }
         
         .view-control-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: rgba(15, 18, 24, 0.8);
+            background: transparent;
             border: 1px solid var(--border);
             color: var(--porcelain);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -392,6 +389,116 @@
             border-color: var(--sand);
         }
         
+        .view-control-btn.active {
+            background: var(--sand);
+            color: var(--charcoal);
+            border-color: var(--sand);
+        }
+        
+        .viewer-dimensions {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: rgba(15, 18, 24, 0.8);
+            padding: 15px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            z-index: 10;
+        }
+        
+        .dimension-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--porcelain);
+            padding: 8px 15px;
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s var(--transition);
+            white-space: nowrap;
+        }
+        
+        .dimension-btn:hover {
+            background: rgba(212, 180, 131, 0.2);
+            border-color: var(--sand);
+        }
+        
+        .dimension-btn.active {
+            background: var(--sand);
+            color: var(--charcoal);
+            border-color: var(--sand);
+        }
+        
+        .zoom-controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            background: rgba(15, 18, 24, 0.8);
+            padding: 10px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            z-index: 10;
+        }
+        
+        .zoom-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--porcelain);
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s var(--transition);
+        }
+        
+        .zoom-btn:hover {
+            background: var(--sand);
+            color: var(--charcoal);
+            border-color: var(--sand);
+        }
+        
+        .angle-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(15, 18, 24, 0.9);
+            color: var(--sand);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            display: none;
+            z-index: 5;
+            border: 1px solid var(--sand);
+        }
+        
+        /* Product Detail Grid */
+        .product-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+        
+        @media (max-width: 992px) {
+            .product-detail-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .product-360-viewer {
+                height: 400px;
+            }
+        }
+        
         .product-specs-detail {
             background: var(--slate);
             border-radius: var(--radius-lg);
@@ -403,6 +510,12 @@
             grid-template-columns: 1fr 1fr;
             gap: 1.5rem;
             margin-top: 1.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .specs-grid {
+                grid-template-columns: 1fr;
+            }
         }
         
         .spec-item {
@@ -976,17 +1089,6 @@
         }
         
         /* Responsive */
-        @media (max-width: 1200px) {
-            .product-detail {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-            }
-            
-            .product-viewer {
-                height: 350px;
-            }
-        }
-        
         @media (max-width: 1024px) {
             .consultation-grid {
                 grid-template-columns: 1fr;
@@ -995,6 +1097,10 @@
             
             .products-grid {
                 grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+            
+            .product-360-viewer {
+                height: 450px;
             }
         }
         
@@ -1060,8 +1166,19 @@
                 padding: 1.5rem;
             }
             
-            .specs-grid {
-                grid-template-columns: 1fr;
+            .product-360-viewer {
+                height: 350px;
+            }
+            
+            .viewer-dimensions {
+                top: 10px;
+                right: 10px;
+                padding: 10px;
+            }
+            
+            .zoom-controls {
+                top: 10px;
+                left: 10px;
             }
             
             .whatsapp-float {
@@ -1095,6 +1212,26 @@
             
             h2 {
                 font-size: 1.875rem;
+            }
+            
+            .product-360-viewer {
+                height: 300px;
+            }
+            
+            .viewer-controls {
+                flex-wrap: wrap;
+                justify-content: center;
+                width: 90%;
+            }
+            
+            .view-control-btn {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .dimension-btn {
+                padding: 6px 10px;
+                font-size: 0.75rem;
             }
         }
         
@@ -1280,7 +1417,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <div class="product-detail" id="productDetailContent">
+                <div class="product-detail-grid" id="productDetailContent">
                     <!-- Dynamic content will be inserted here -->
                 </div>
             </div>
@@ -1316,8 +1453,8 @@
             <div class="products-header">
                 <h2>Premium Surveillance Solutions</h2>
                 <p class="section-subtitle">
-                    High-performance security systems with 3D visualization, professional installation, and 24/7 support. 
-                    Explore our products with interactive 3D viewers.
+                    High-performance security systems with 360° product viewing, professional installation, and 24/7 support. 
+                    Explore our products with complete 360° rotation and multi-dimensional viewing.
                 </p>
             </div>
             
@@ -1325,7 +1462,7 @@
                 <!-- Product 1: 4K Dome Camera -->
                 <div class="product-card fade-in">
                     <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="4K Dome CCTV Camera">
+                        <img src="https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="4K Dome CCTV Camera">
                         <span class="product-badge">Professional</span>
                     </div>
                     <div class="product-content">
@@ -1345,16 +1482,13 @@
                                 <button class="btn-view view-product-detail" 
                                     data-product-id="1"
                                     data-product-name="4K Ultra HD Dome Camera"
-                                    data-product-price="Ksh 24,500"
-                                    data-product-image="https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
-                                    data-product-description="Crystal clear 4K resolution with 360° coverage, infrared night vision up to 30 meters, and weather-resistant housing for indoor/outdoor use.">
-                                    <i class="fas fa-cube"></i> View 3D
+                                    data-product-price="Ksh 24,500">
+                                    <i class="fas fa-cube"></i> View 360°
                                 </button>
                                 <button class="btn-whatsapp buy-now" 
                                     data-product="4K Ultra HD Dome Camera"
                                     data-price="Ksh 24,500"
-                                    data-description="4K resolution with 360° coverage and night vision"
-                                    data-image="https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80">
+                                    data-description="4K resolution with 360° coverage and night vision">
                                     <i class="fab fa-whatsapp"></i> Buy Now
                                 </button>
                             </div>
@@ -1365,7 +1499,7 @@
                 <!-- Product 2: PTZ Camera -->
                 <div class="product-card fade-in">
                     <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="PTZ CCTV Camera">
+                        <img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="PTZ CCTV Camera">
                         <span class="product-badge">Best Seller</span>
                     </div>
                     <div class="product-content">
@@ -1385,16 +1519,13 @@
                                 <button class="btn-view view-product-detail"
                                     data-product-id="2"
                                     data-product-name="Smart PTZ Outdoor Camera"
-                                    data-product-price="Ksh 34,800"
-                                    data-product-image="https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
-                                    data-product-description="Pan-Tilt-Zoom functionality with auto-tracking, 5x optical zoom, vandal-resistant housing, and advanced motion detection algorithms.">
-                                    <i class="fas fa-cube"></i> View 3D
+                                    data-product-price="Ksh 34,800">
+                                    <i class="fas fa-cube"></i> View 360°
                                 </button>
                                 <button class="btn-whatsapp buy-now"
                                     data-product="Smart PTZ Outdoor Camera"
                                     data-price="Ksh 34,800"
-                                    data-description="Pan-Tilt-Zoom with auto-tracking and 5x optical zoom"
-                                    data-image="https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80">
+                                    data-description="Pan-Tilt-Zoom with auto-tracking and 5x optical zoom">
                                     <i class="fab fa-whatsapp"></i> Buy Now
                                 </button>
                             </div>
@@ -1405,7 +1536,7 @@
                 <!-- Product 3: Bullet Camera -->
                 <div class="product-card fade-in">
                     <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Bullet CCTV Camera">
+                        <img src="https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Bullet CCTV Camera">
                     </div>
                     <div class="product-content">
                         <h3 class="product-title">Professional Bullet Camera</h3>
@@ -1424,16 +1555,13 @@
                                 <button class="btn-view view-product-detail"
                                     data-product-id="3"
                                     data-product-name="Professional Bullet Camera"
-                                    data-product-price="Ksh 18,900"
-                                    data-product-image="https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
-                                    data-product-description="High-visibility deterrent camera with powerful infrared LEDs, wide dynamic range, and rugged aluminum housing for maximum durability.">
-                                    <i class="fas fa-cube"></i> View 3D
+                                    data-product-price="Ksh 18,900">
+                                    <i class="fas fa-cube"></i> View 360°
                                 </button>
                                 <button class="btn-whatsapp buy-now"
                                     data-product="Professional Bullet Camera"
                                     data-price="Ksh 18,900"
-                                    data-description="High-visibility deterrent with 100ft night vision"
-                                    data-image="https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80">
+                                    data-description="High-visibility deterrent with 100ft night vision">
                                     <i class="fab fa-whatsapp"></i> Buy Now
                                 </button>
                             </div>
@@ -1444,7 +1572,7 @@
                 <!-- Product 4: WiFi Camera -->
                 <div class="product-card fade-in">
                     <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="WiFi CCTV Camera">
+                        <img src="https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="WiFi CCTV Camera">
                         <span class="product-badge">Wireless</span>
                     </div>
                     <div class="product-content">
@@ -1464,16 +1592,13 @@
                                 <button class="btn-view view-product-detail"
                                     data-product-id="4"
                                     data-product-name="WiFi Indoor Camera"
-                                    data-product-price="Ksh 12,750"
-                                    data-product-image="https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
-                                    data-product-description="Easy-install WiFi camera with two-way audio, 1080p resolution, motion detection, and mobile app access for remote monitoring.">
-                                    <i class="fas fa-cube"></i> View 3D
+                                    data-product-price="Ksh 12,750">
+                                    <i class="fas fa-cube"></i> View 360°
                                 </button>
                                 <button class="btn-whatsapp buy-now"
                                     data-product="WiFi Indoor Camera"
                                     data-price="Ksh 12,750"
-                                    data-description="Wireless camera with two-way audio and mobile app"
-                                    data-image="https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80">
+                                    data-description="Wireless camera with two-way audio and mobile app">
                                     <i class="fab fa-whatsapp"></i> Buy Now
                                 </button>
                             </div>
@@ -1484,7 +1609,7 @@
                 <!-- Product 5: NVR System -->
                 <div class="product-card fade-in">
                     <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="NVR System">
+                        <img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="NVR System">
                         <span class="product-badge">Complete Kit</span>
                     </div>
                     <div class="product-content">
@@ -1504,16 +1629,13 @@
                                 <button class="btn-view view-product-detail"
                                     data-product-id="5"
                                     data-product-name="8-Channel NVR System"
-                                    data-product-price="Ksh 89,500"
-                                    data-product-image="https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
-                                    data-product-description="Complete surveillance solution with 4 cameras, 8-channel NVR, 2TB storage, professional installation package, and mobile access.">
-                                    <i class="fas fa-cube"></i> View 3D
+                                    data-product-price="Ksh 89,500">
+                                    <i class="fas fa-cube"></i> View 360°
                                 </button>
                                 <button class="btn-whatsapp buy-now"
                                     data-product="8-Channel NVR System"
                                     data-price="Ksh 89,500"
-                                    data-description="Complete system with 4 cameras and professional installation"
-                                    data-image="https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80">
+                                    data-description="Complete system with 4 cameras and professional installation">
                                     <i class="fab fa-whatsapp"></i> Buy Now
                                 </button>
                             </div>
@@ -1524,7 +1646,7 @@
                 <!-- Product 6: AI Camera -->
                 <div class="product-card fade-in">
                     <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="AI CCTV Camera">
+                        <img src="https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="AI CCTV Camera">
                         <span class="product-badge">AI Powered</span>
                     </div>
                     <div class="product-content">
@@ -1544,16 +1666,13 @@
                                 <button class="btn-view view-product-detail"
                                     data-product-id="6"
                                     data-product-name="AI Analytics Camera"
-                                    data-product-price="Ksh 41,200"
-                                    data-product-image="https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
-                                    data-product-description="Smart camera with AI-powered person/vehicle detection, line crossing alerts, facial recognition, and advanced analytics.">
-                                    <i class="fas fa-cube"></i> View 3D
+                                    data-product-price="Ksh 41,200">
+                                    <i class="fas fa-cube"></i> View 360°
                                 </button>
                                 <button class="btn-whatsapp buy-now"
                                     data-product="AI Analytics Camera"
                                     data-price="Ksh 41,200"
-                                    data-description="AI-powered person/vehicle detection with smart alerts"
-                                    data-image="https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80">
+                                    data-description="AI-powered person/vehicle detection with smart alerts">
                                     <i class="fab fa-whatsapp"></i> Buy Now
                                 </button>
                             </div>
@@ -1762,6 +1881,9 @@
         <i class="fab fa-whatsapp"></i>
     </a>
 
+    <!-- 360 Viewer JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+
     <script>
         // Mobile Navigation
         const mobileToggle = document.getElementById('mobileToggle');
@@ -1788,13 +1910,12 @@
                 const product = this.getAttribute('data-product');
                 const price = this.getAttribute('data-price');
                 const description = this.getAttribute('data-description');
-                const image = this.getAttribute('data-image');
                 
                 // WhatsApp number: 0717892776 (converted to international format)
                 const phone = '254717892776';
                 
-                // Create the message with image URL included
-                const message = `Hello LuxSurveil, I'd like to purchase the following product:%0A%0A*Product:* ${product}%0A*Price:* ${price}%0A*Description:* ${description}%0A*Image:* ${image}%0A%0APlease confirm availability and provide payment details.`;
+                // Create the message
+                const message = `Hello LuxSurveil, I'd like to purchase the following product:%0A%0A*Product:* ${product}%0A*Price:* ${price}%0A*Description:* ${description}%0A%0APlease confirm availability and provide payment details.`;
                 
                 // Open WhatsApp
                 window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
@@ -1816,13 +1937,21 @@
         // WhatsApp number for business notifications
         const BUSINESS_WHATSAPP = '254717892776';
         
-        // Product Specifications Data
+        // Product Specifications Data with 360° image sets
         const productSpecs = {
             1: {
                 name: "4K Ultra HD Dome Camera",
                 price: "Ksh 24,500",
                 description: "Professional-grade dome camera with crystal clear 4K resolution",
-                image: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                images: [
+                    "https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+                ],
+                angles: ["Front", "Back", "Left Side", "Right Side", "Top", "Bottom"],
                 specs: [
                     { label: "Resolution", value: "4K Ultra HD (3840x2160)" },
                     { label: "Lens", value: "2.8mm wide-angle lens" },
@@ -1846,7 +1975,15 @@
                 name: "Smart PTZ Outdoor Camera",
                 price: "Ksh 34,800",
                 description: "Advanced PTZ camera with auto-tracking and 5x optical zoom",
-                image: "https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                images: [
+                    "https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+                ],
+                angles: ["Front", "Back", "Left Side", "Right Side", "Top", "Bottom"],
                 specs: [
                     { label: "Resolution", value: "5MP Super HD" },
                     { label: "Zoom", value: "5x optical zoom" },
@@ -1870,7 +2007,15 @@
                 name: "Professional Bullet Camera",
                 price: "Ksh 18,900",
                 description: "High-visibility deterrent camera with superior night vision",
-                image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                images: [
+                    "https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+                ],
+                angles: ["Front", "Back", "Left Side", "Right Side", "Top", "Bottom"],
                 specs: [
                     { label: "Resolution", value: "4MP Full HD" },
                     { label: "Lens", value: "3.6mm fixed lens" },
@@ -1894,7 +2039,15 @@
                 name: "WiFi Indoor Camera",
                 price: "Ksh 12,750",
                 description: "Easy-install WiFi camera with two-way audio and motion detection",
-                image: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                images: [
+                    "https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+                ],
+                angles: ["Front", "Back", "Left Side", "Right Side", "Top", "Bottom"],
                 specs: [
                     { label: "Resolution", value: "1080p Full HD" },
                     { label: "Lens", value: "2.1mm wide-angle" },
@@ -1918,7 +2071,15 @@
                 name: "8-Channel NVR System",
                 price: "Ksh 89,500",
                 description: "Complete surveillance solution with 4 cameras and NVR",
-                image: "https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                images: [
+                    "https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+                ],
+                angles: ["Front", "Back", "Left Side", "Right Side", "Top", "Bottom"],
                 specs: [
                     { label: "NVR Channels", value: "8 channels (expandable)" },
                     { label: "Cameras Included", value: "4 x 4MP cameras" },
@@ -1942,7 +2103,15 @@
                 name: "AI Analytics Camera",
                 price: "Ksh 41,200",
                 description: "Smart AI-powered camera with advanced analytics",
-                image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                images: [
+                    "https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1550747527-7ce0ab1e1fd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+                ],
+                angles: ["Front", "Back", "Left Side", "Right Side", "Top", "Bottom"],
                 specs: [
                     { label: "Resolution", value: "4K with AI chip" },
                     { label: "AI Features", value: "Person/vehicle detection" },
@@ -2026,40 +2195,90 @@
             }
         });
         
-        // 3D Product View Functionality
+        // 360° Product View Functionality
         document.querySelectorAll('.view-product-detail').forEach(button => {
             button.addEventListener('click', function() {
                 const productId = this.getAttribute('data-product-id');
                 const productName = this.getAttribute('data-product-name');
                 const productPrice = this.getAttribute('data-product-price');
-                const productImage = this.getAttribute('data-product-image');
-                const productDescription = this.getAttribute('data-product-description');
                 
-                openProductModal(productId, productName, productPrice, productImage, productDescription);
+                openProductModal(productId, productName, productPrice);
             });
         });
         
-        function openProductModal(productId, productName, productPrice, productImage, productDescription) {
+        let currentProductId = null;
+        let currentImageIndex = 0;
+        let zoomLevel = 1;
+        let isDragging = false;
+        let startX = 0;
+        let rotation = 0;
+        
+        function openProductModal(productId, productName, productPrice) {
             const product = productSpecs[productId];
             if (!product) return;
+            
+            currentProductId = productId;
+            currentImageIndex = 0;
+            zoomLevel = 1;
+            rotation = 0;
             
             // Update modal title
             document.getElementById('productModalTitle').textContent = productName;
             
-            // Create product detail HTML
+            // Create product detail HTML with 360° viewer
             const productDetailHTML = `
-                <div class="product-viewer">
-                    <img src="${productImage}" alt="${productName}" class="product-real-image">
-                    <div class="view-controls">
-                        <button class="view-control-btn" onclick="zoomImage('in')">
-                            <i class="fas fa-search-plus"></i>
-                        </button>
-                        <button class="view-control-btn" onclick="zoomImage('out')">
-                            <i class="fas fa-search-minus"></i>
-                        </button>
-                        <button class="view-control-btn" onclick="rotateImage()">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
+                <div>
+                    <div class="product-360-viewer">
+                        <div class="product-360-container" id="productViewerContainer">
+                            <img src="${product.images[0]}" alt="${productName} - Front View" class="product-360-image" id="product360Image" style="transform: scale(${zoomLevel}) rotate(${rotation}deg);">
+                            <div class="angle-indicator" id="angleIndicator">Front View</div>
+                        </div>
+                        
+                        <div class="zoom-controls">
+                            <button class="zoom-btn" onclick="zoomProduct('in')">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                            <button class="zoom-btn" onclick="zoomProduct('out')">
+                                <i class="fas fa-search-minus"></i>
+                            </button>
+                            <button class="zoom-btn" onclick="resetZoom()">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="viewer-dimensions">
+                            ${product.angles.map((angle, index) => `
+                                <button class="dimension-btn ${index === 0 ? 'active' : ''}" onclick="changeProductAngle(${index})">
+                                    ${angle}
+                                </button>
+                            `).join('')}
+                        </div>
+                        
+                        <div class="viewer-controls">
+                            <button class="view-control-btn" onclick="rotateProductImage(-90)">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                            <button class="view-control-btn" onclick="autoRotateProduct()" id="autoRotateBtn">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <button class="view-control-btn" onclick="rotateProductImage(90)">
+                                <i class="fas fa-redo"></i>
+                            </button>
+                            <button class="view-control-btn" onclick="rotateProductImage(180)">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button class="view-control-btn" onclick="rotateProductImage(360)">
+                                <i class="fas fa-undo-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 2rem;">
+                        ${product.images.map((img, index) => `
+                            <img src="${img}" alt="${product.angles[index]}" 
+                                 style="width: 60px; height: 60px; object-fit: cover; cursor: pointer; border: ${index === 0 ? '2px solid var(--sand)' : '1px solid var(--border)'}; border-radius: 4px;"
+                                 onclick="changeProductAngle(${index})">
+                        `).join('')}
                     </div>
                 </div>
                 <div class="product-specs-detail">
@@ -2071,8 +2290,7 @@
                         <button class="btn-whatsapp buy-now-modal" 
                             data-product="${productName}"
                             data-price="${productPrice}"
-                            data-description="${product.description}"
-                            data-image="${productImage}">
+                            data-description="${product.description}">
                             <i class="fab fa-whatsapp"></i> Buy Now
                         </button>
                     </div>
@@ -2097,13 +2315,13 @@
                     </div>
                     
                     <div style="margin-top: 2.5rem; padding: 1.5rem; background: rgba(212, 180, 131, 0.05); border-radius: var(--radius-md);">
-                        <h4 style="color: var(--sand); margin-bottom: 1rem;">What's Included</h4>
+                        <h4 style="color: var(--sand); margin-bottom: 1rem;">360° Viewing Instructions</h4>
                         <ul style="color: var(--porcelain); opacity: 0.9; padding-left: 1.5rem;">
-                            <li style="margin-bottom: 0.5rem;">${productName} unit</li>
-                            <li style="margin-bottom: 0.5rem;">Power adapter and cables</li>
-                            <li style="margin-bottom: 0.5rem;">Mounting bracket and screws</li>
-                            <li style="margin-bottom: 0.5rem;">User manual and warranty card</li>
-                            <li>Professional installation available</li>
+                            <li style="margin-bottom: 0.5rem;">Click on different angle buttons to view front, back, left, right, top, and bottom</li>
+                            <li style="margin-bottom: 0.5rem;">Use rotation buttons to rotate the current view by 90°, 180°, or 360°</li>
+                            <li style="margin-bottom: 0.5rem;">Click the play button for automatic 360° rotation</li>
+                            <li style="margin-bottom: 0.5rem;">Use zoom buttons to zoom in/out for detailed inspection</li>
+                            <li>Click on thumbnail images for quick angle switching</li>
                         </ul>
                     </div>
                 </div>
@@ -2112,6 +2330,9 @@
             // Insert HTML into modal
             document.getElementById('productDetailContent').innerHTML = productDetailHTML;
             
+            // Add drag functionality for rotation
+            setupDragRotation();
+            
             // Add event listener to modal buy button
             setTimeout(() => {
                 document.querySelectorAll('.buy-now-modal').forEach(button => {
@@ -2119,9 +2340,8 @@
                         const product = this.getAttribute('data-product');
                         const price = this.getAttribute('data-price');
                         const description = this.getAttribute('data-description');
-                        const image = this.getAttribute('data-image');
                         
-                        const message = `Hello LuxSurveil, I'd like to purchase the following product:%0A%0A*Product:* ${product}%0A*Price:* ${price}%0A*Description:* ${description}%0A*Image:* ${image}%0A%0APlease confirm availability and provide payment details.`;
+                        const message = `Hello LuxSurveil, I'd like to purchase the following product:%0A%0A*Product:* ${product}%0A*Price:* ${price}%0A*Description:* ${description}%0A%0APlease confirm availability and provide payment details.`;
                         
                         window.open(`https://wa.me/${BUSINESS_WHATSAPP}?text=${message}`, '_blank');
                     });
@@ -2133,27 +2353,189 @@
             document.body.style.overflow = 'hidden';
         }
         
-        // Image control functions
-        function zoomImage(direction) {
-            const image = document.querySelector('.product-real-image');
-            if (!image) return;
+        function changeProductAngle(index) {
+            const product = productSpecs[currentProductId];
+            if (!product) return;
             
-            const currentScale = parseFloat(image.style.transform?.replace('scale(', '')?.replace(')', '')) || 1;
-            const newScale = direction === 'in' ? currentScale + 0.2 : Math.max(0.5, currentScale - 0.2);
+            currentImageIndex = index;
+            const imageElement = document.getElementById('product360Image');
+            const angleIndicator = document.getElementById('angleIndicator');
             
-            image.style.transform = `scale(${newScale})`;
-            image.style.transition = 'transform 0.3s ease';
+            if (imageElement) {
+                imageElement.src = product.images[index];
+                angleIndicator.textContent = product.angles[index] + " View";
+                
+                // Show angle indicator briefly
+                angleIndicator.style.display = 'block';
+                setTimeout(() => {
+                    angleIndicator.style.display = 'none';
+                }, 1500);
+            }
+            
+            // Update active button
+            document.querySelectorAll('.dimension-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+            });
+            
+            // Update thumbnail borders
+            document.querySelectorAll('.product-360-viewer + div img').forEach((img, i) => {
+                img.style.border = i === index ? '2px solid var(--sand)' : '1px solid var(--border)';
+            });
         }
         
-        function rotateImage() {
-            const image = document.querySelector('.product-real-image');
-            if (!image) return;
+        function rotateProductImage(degrees) {
+            const imageElement = document.getElementById('product360Image');
+            if (!imageElement) return;
             
-            const currentRotate = parseFloat(image.style.transform?.match(/rotate\(([^)]+)deg\)/)?.[1]) || 0;
-            const newRotate = currentRotate + 90;
+            rotation += degrees;
+            imageElement.style.transform = `scale(${zoomLevel}) rotate(${rotation}deg)`;
+            imageElement.style.transition = 'transform 0.5s ease';
             
-            image.style.transform = `rotate(${newRotate}deg)`;
-            image.style.transition = 'transform 0.5s ease';
+            // Show rotation indicator
+            const angleIndicator = document.getElementById('angleIndicator');
+            if (angleIndicator) {
+                angleIndicator.textContent = `Rotated ${degrees}°`;
+                angleIndicator.style.display = 'block';
+                setTimeout(() => {
+                    angleIndicator.style.display = 'none';
+                }, 1000);
+            }
+        }
+        
+        function zoomProduct(direction) {
+            const imageElement = document.getElementById('product360Image');
+            if (!imageElement) return;
+            
+            if (direction === 'in') {
+                zoomLevel = Math.min(3, zoomLevel + 0.2);
+            } else {
+                zoomLevel = Math.max(0.5, zoomLevel - 0.2);
+            }
+            
+            imageElement.style.transform = `scale(${zoomLevel}) rotate(${rotation}deg)`;
+            imageElement.style.transition = 'transform 0.3s ease';
+        }
+        
+        function resetZoom() {
+            const imageElement = document.getElementById('product360Image');
+            if (!imageElement) return;
+            
+            zoomLevel = 1;
+            rotation = 0;
+            imageElement.style.transform = `scale(${zoomLevel}) rotate(${rotation}deg)`;
+            imageElement.style.transition = 'transform 0.5s ease';
+            
+            // Show reset indicator
+            const angleIndicator = document.getElementById('angleIndicator');
+            if (angleIndicator) {
+                angleIndicator.textContent = 'View Reset';
+                angleIndicator.style.display = 'block';
+                setTimeout(() => {
+                    angleIndicator.style.display = 'none';
+                }, 1000);
+            }
+        }
+        
+        let autoRotateInterval = null;
+        let isAutoRotating = false;
+        
+        function autoRotateProduct() {
+            const autoRotateBtn = document.getElementById('autoRotateBtn');
+            if (!autoRotateBtn) return;
+            
+            if (!isAutoRotating) {
+                // Start auto rotation
+                isAutoRotating = true;
+                autoRotateBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                autoRotateBtn.style.background = 'var(--sand)';
+                autoRotateBtn.style.color = 'var(--charcoal)';
+                
+                autoRotateInterval = setInterval(() => {
+                    rotation += 5;
+                    const imageElement = document.getElementById('product360Image');
+                    if (imageElement) {
+                        imageElement.style.transform = `scale(${zoomLevel}) rotate(${rotation}deg)`;
+                    }
+                }, 50);
+            } else {
+                // Stop auto rotation
+                isAutoRotating = false;
+                autoRotateBtn.innerHTML = '<i class="fas fa-play"></i>';
+                autoRotateBtn.style.background = '';
+                autoRotateBtn.style.color = '';
+                
+                if (autoRotateInterval) {
+                    clearInterval(autoRotateInterval);
+                    autoRotateInterval = null;
+                }
+            }
+        }
+        
+        function setupDragRotation() {
+            const container = document.getElementById('productViewerContainer');
+            if (!container) return;
+            
+            container.addEventListener('mousedown', startDrag);
+            container.addEventListener('touchstart', startDragTouch);
+            
+            function startDrag(e) {
+                isDragging = true;
+                startX = e.clientX;
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', stopDrag);
+            }
+            
+            function startDragTouch(e) {
+                if (e.touches.length === 1) {
+                    isDragging = true;
+                    startX = e.touches[0].clientX;
+                    document.addEventListener('touchmove', dragTouch);
+                    document.addEventListener('touchend', stopDrag);
+                }
+            }
+            
+            function drag(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+                
+                const deltaX = e.clientX - startX;
+                rotation += deltaX * 0.5;
+                startX = e.clientX;
+                
+                const imageElement = document.getElementById('product360Image');
+                if (imageElement) {
+                    imageElement.style.transform = `scale(${zoomLevel}) rotate(${rotation}deg)`;
+                    imageElement.style.transition = 'none';
+                }
+            }
+            
+            function dragTouch(e) {
+                if (!isDragging || e.touches.length !== 1) return;
+                e.preventDefault();
+                
+                const deltaX = e.touches[0].clientX - startX;
+                rotation += deltaX * 0.5;
+                startX = e.touches[0].clientX;
+                
+                const imageElement = document.getElementById('product360Image');
+                if (imageElement) {
+                    imageElement.style.transform = `scale(${zoomLevel}) rotate(${rotation}deg)`;
+                    imageElement.style.transition = 'none';
+                }
+            }
+            
+            function stopDrag() {
+                isDragging = false;
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('touchmove', dragTouch);
+                document.removeEventListener('mouseup', stopDrag);
+                document.removeEventListener('touchend', stopDrag);
+                
+                const imageElement = document.getElementById('product360Image');
+                if (imageElement) {
+                    imageElement.style.transition = 'transform 0.3s ease';
+                }
+            }
         }
         
         // Initialize date picker with restrictions
@@ -2529,6 +2911,11 @@
             
             document.querySelectorAll('.product-card, .trust-card').forEach(el => {
                 observer.observe(el);
+            });
+            
+            // Initialize fancybox
+            Fancybox.bind("[data-fancybox]", {
+                // Your custom options
             });
         });
     </script>
